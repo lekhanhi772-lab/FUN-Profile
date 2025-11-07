@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Navbar } from '@/components/layout/Navbar';
@@ -11,6 +11,7 @@ import { HistoryTab } from '@/components/wallet/HistoryTab';
 
 const Wallet = () => {
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('assets');
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -47,9 +48,11 @@ const Wallet = () => {
         </div>
         
         <div className="space-y-4">
-          <MetamaskHeader />
+          <MetamaskHeader 
+            onSendClick={() => setActiveTab('send')}
+          />
           
-          <Tabs defaultValue="assets" className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsContent value="assets">
               <MetamaskAssetsTab />
             </TabsContent>
@@ -70,21 +73,21 @@ const Wallet = () => {
           {/* Quick Actions */}
           <div className="grid grid-cols-3 gap-2 pt-4">
             <button 
-              onClick={() => document.querySelector('[value="receive"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }))}
+              onClick={() => setActiveTab('receive')}
               className="p-3 rounded-lg border bg-card hover:bg-accent/10 transition-colors text-center"
             >
               <div className="text-2xl mb-1">📥</div>
               <p className="text-xs font-medium">Nhận</p>
             </button>
             <button 
-              onClick={() => document.querySelector('[value="send"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }))}
+              onClick={() => setActiveTab('send')}
               className="p-3 rounded-lg border bg-card hover:bg-accent/10 transition-colors text-center"
             >
               <div className="text-2xl mb-1">📤</div>
               <p className="text-xs font-medium">Gửi</p>
             </button>
             <button 
-              onClick={() => document.querySelector('[value="history"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }))}
+              onClick={() => setActiveTab('history')}
               className="p-3 rounded-lg border bg-card hover:bg-accent/10 transition-colors text-center"
             >
               <div className="text-2xl mb-1">📜</div>

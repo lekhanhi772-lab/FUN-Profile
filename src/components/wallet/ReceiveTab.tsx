@@ -1,8 +1,9 @@
 import { useAccount } from 'wagmi';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Copy } from 'lucide-react';
+import { Copy, Share2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { QRCodeSVG } from 'qrcode.react';
 
 export const ReceiveTab = () => {
   const { address } = useAccount();
@@ -14,6 +15,23 @@ export const ReceiveTab = () => {
     }
   };
 
+  const handleShare = async () => {
+    if (address) {
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: 'Địa chỉ ví của tôi',
+            text: `Gửi tiền đến địa chỉ này: ${address}`,
+          });
+        } catch (err) {
+          console.error('Error sharing:', err);
+        }
+      } else {
+        handleCopy();
+      }
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -22,9 +40,15 @@ export const ReceiveTab = () => {
       <CardContent className="space-y-4">
         <div className="text-center space-y-4">
           <div className="bg-muted p-6 rounded-lg">
-            <div className="bg-white p-4 inline-block rounded">
-              {/* QR Code placeholder */}
-              <div className="w-48 h-48 bg-gradient-to-br from-primary to-primary-glow opacity-20 rounded" />
+            <div className="bg-white p-4 inline-block rounded-lg shadow-lg">
+              {address && (
+                <QRCodeSVG 
+                  value={address} 
+                  size={192}
+                  level="H"
+                  includeMargin={true}
+                />
+              )}
             </div>
           </div>
           
@@ -40,6 +64,25 @@ export const ReceiveTab = () => {
                 <Copy className="h-4 w-4" />
               </Button>
             </div>
+          </div>
+
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={handleCopy}
+            >
+              <Copy className="h-4 w-4 mr-2" />
+              Copy địa chỉ
+            </Button>
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={handleShare}
+            >
+              <Share2 className="h-4 w-4 mr-2" />
+              Chia sẻ
+            </Button>
           </div>
           
           <p className="text-sm text-muted-foreground">

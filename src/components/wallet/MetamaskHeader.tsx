@@ -8,13 +8,21 @@ import { formatEther } from 'viem';
 import { Copy, ExternalLink, ChevronDown, Settings } from 'lucide-react';
 import { toast } from 'sonner';
 import { mainnet, bsc } from 'wagmi/chains';
+import { WalletSettingsDialog } from './WalletSettingsDialog';
 
-export const MetamaskHeader = () => {
+interface MetamaskHeaderProps {
+  onBuyClick?: () => void;
+  onSendClick?: () => void;
+  onSwapClick?: () => void;
+}
+
+export const MetamaskHeader = ({ onBuyClick, onSendClick, onSwapClick }: MetamaskHeaderProps) => {
   const { address, isConnected } = useAccount();
   const { data: balance } = useBalance({ address });
   const { disconnect } = useDisconnect();
   const chainId = useChainId();
   const [profile, setProfile] = useState<any>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -130,7 +138,7 @@ export const MetamaskHeader = () => {
               </div>
             </div>
           </div>
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" onClick={() => setSettingsOpen(true)}>
             <Settings className="w-5 h-5" />
           </Button>
         </div>
@@ -151,6 +159,10 @@ export const MetamaskHeader = () => {
           <Button 
             variant="outline" 
             className="flex-col h-auto py-3 gap-1"
+            onClick={() => {
+              toast.info('Tính năng mua crypto sẽ sớm có sẵn!');
+              onBuyClick?.();
+            }}
           >
             <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mb-1">
               <span className="text-lg">💸</span>
@@ -160,6 +172,7 @@ export const MetamaskHeader = () => {
           <Button 
             variant="outline" 
             className="flex-col h-auto py-3 gap-1"
+            onClick={onSendClick}
           >
             <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mb-1">
               <span className="text-lg">📤</span>
@@ -169,6 +182,10 @@ export const MetamaskHeader = () => {
           <Button 
             variant="outline" 
             className="flex-col h-auto py-3 gap-1"
+            onClick={() => {
+              toast.info('Tính năng hoán đổi sẽ sớm có sẵn!');
+              onSwapClick?.();
+            }}
           >
             <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mb-1">
               <span className="text-lg">🔄</span>
@@ -187,6 +204,8 @@ export const MetamaskHeader = () => {
           Ngắt kết nối
         </Button>
       </div>
+      
+      <WalletSettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
     </Card>
   );
 };
