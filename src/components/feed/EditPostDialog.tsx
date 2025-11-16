@@ -5,6 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { Image, Video, X } from 'lucide-react';
+import { z } from 'zod';
+
+const postSchema = z.object({
+  content: z.string().max(5000, 'Post must be less than 5000 characters'),
+});
 
 interface EditPostDialogProps {
   post: {
@@ -64,6 +69,13 @@ export const EditPostDialog = ({ post, isOpen, onClose, onPostUpdated }: EditPos
     e.preventDefault();
     if (!content.trim() && !imageFile && !videoFile && !imagePreview && !videoPreview) {
       toast.error('Please add some content');
+      return;
+    }
+
+    // Validate content length
+    const validation = postSchema.safeParse({ content: content.trim() });
+    if (!validation.success) {
+      toast.error(validation.error.errors[0].message);
       return;
     }
 

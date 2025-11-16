@@ -9,6 +9,22 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toast } from 'sonner';
 import { Upload } from 'lucide-react';
 import { AvatarCropper } from './AvatarCropper';
+import { z } from 'zod';
+
+const profileSchema = z.object({
+  username: z.string()
+    .min(3, 'Username must be at least 3 characters')
+    .max(30, 'Username must be less than 30 characters')
+    .trim(),
+  full_name: z.string()
+    .max(100, 'Name must be less than 100 characters')
+    .trim()
+    .optional(),
+  bio: z.string()
+    .max(120, 'Bio must be less than 120 characters')
+    .trim()
+    .optional(),
+});
 
 export const EditProfile = () => {
   const [loading, setLoading] = useState(false);
@@ -165,6 +181,18 @@ export const EditProfile = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate profile fields
+    const validation = profileSchema.safeParse({ 
+      username, 
+      full_name: fullName || undefined,
+      bio: bio || undefined 
+    });
+    if (!validation.success) {
+      toast.error(validation.error.errors[0].message);
+      return;
+    }
+
     setLoading(true);
 
     try {

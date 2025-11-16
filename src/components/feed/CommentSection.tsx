@@ -5,6 +5,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { toast } from 'sonner';
 import { MessageCircle, Send } from 'lucide-react';
+import { z } from 'zod';
+
+const commentSchema = z.object({
+  content: z.string().max(1000, 'Comment must be less than 1000 characters'),
+});
 
 interface Comment {
   id: string;
@@ -55,6 +60,13 @@ export const CommentSection = ({ postId, onCommentAdded }: CommentSectionProps) 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newComment.trim()) return;
+
+    // Validate comment length
+    const validation = commentSchema.safeParse({ content: newComment.trim() });
+    if (!validation.success) {
+      toast.error(validation.error.errors[0].message);
+      return;
+    }
 
     setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
