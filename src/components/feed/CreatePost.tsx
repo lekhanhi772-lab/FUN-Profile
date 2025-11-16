@@ -6,6 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { ImagePlus, Video, X, Loader2 } from 'lucide-react';
+import { z } from 'zod';
+
+const postSchema = z.object({
+  content: z.string().max(5000, 'Post must be less than 5000 characters'),
+});
 
 interface CreatePostProps {
   onPostCreated: () => void;
@@ -58,6 +63,13 @@ export const CreatePost = ({ onPostCreated }: CreatePostProps) => {
     e.preventDefault();
     if (!content.trim() && !image && !video) {
       toast.error('Please add some content, image, or video');
+      return;
+    }
+
+    // Validate content length
+    const validation = postSchema.safeParse({ content: content.trim() });
+    if (!validation.success) {
+      toast.error(validation.error.errors[0].message);
       return;
     }
 
